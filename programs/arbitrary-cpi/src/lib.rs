@@ -9,7 +9,7 @@ use {
     }
 };
 
-declare_id!("6CQeMsepvfKxLxRnkxCVE4iNSXuhYypoccBB11aYiP7b");
+declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
 pub mod arbitrary_cpi {
