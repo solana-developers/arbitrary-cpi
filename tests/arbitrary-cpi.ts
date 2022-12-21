@@ -3,22 +3,9 @@ import { Program } from "@project-serum/anchor"
 import { Gameplay } from "../target/types/gameplay"
 import { FakeMetadata } from "../target/types/fake_metadata"
 import { CharacterMetadata } from "../target/types/character_metadata"
-import {
-  PublicKey,
-  Keypair,
-  SystemProgram,
-  SYSVAR_RENT_PUBKEY,
-} from "@solana/web3.js"
-import { getCharacterKey, getMetadataKey, safeAirdrop } from "./utils/utils"
-import {
-  Key,
-  PROGRAM_ID as METADATA_PROGRAM_ID,
-} from "@metaplex-foundation/mpl-token-metadata"
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token"
+import { Keypair } from "@solana/web3.js"
+import { getMetadataKey, safeAirdrop } from "./utils/utils"
 import { expect } from "chai"
-import { program } from "@project-serum/anchor/dist/cjs/spl/associated-token"
-import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey"
-
 describe("arbitrary-cpi", async () => {
   let gameplayProgram: Program<Gameplay>
   let metadataProgram: Program<CharacterMetadata>
