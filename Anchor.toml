@@ -1,15 +1,17 @@
 [features]
-seeds = false
+seeds = true
 skip-lint = false
 [programs.localnet]
-arbitrary_cpi = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+gameplay = "AbFFYMjsZ2iaXn6wU9C8BDDJS8yP3bE9tEndB56cn3yE"
+character_metadata = "D4hPnYEsAx4u3EQMrKEXsY3MkfLndXbBKTEYTwwm25TE"
+fake_metadata = "FKBWhshzcQa29cCyaXc1vfkZ5U985gD5YsqfCzJYUBr"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "devnet"
-wallet = "/home/ixmorrow/.config/solana/test-wallet3.json"
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"

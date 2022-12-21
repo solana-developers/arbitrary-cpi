@@ -1,12 +1,12 @@
 [package]
-name = "arbitrary-cpi"
+name = "gameplay"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "arbitrary_cpi"
+name = "gameplay"
 
 [features]
 no-entrypoint = []
@@ -17,5 +17,4 @@ default = []
 
 [dependencies]
 anchor-lang = "0.25.0"
-anchor-spl = "0.25.0"
-mpl-token-metadata = {version = "1.5.0", features = ["no-entrypoint"]}
+character-metadata = { path = "../character-metadata", features = ["cpi"] }
