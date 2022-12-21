@@ -1,6 +1,8 @@
 use anchor_lang::prelude::*;
 use borsh::{BorshDeserialize, BorshSerialize};
-use character_metadata::cpi::accounts::CreateMetadata;
+use character_metadata::{
+    cpi::accounts::CreateMetadata, cpi::create_metadata, program::CharacterMetadata,
+};
 
 declare_id!("AbFFYMjsZ2iaXn6wU9C8BDDJS8yP3bE9tEndB56cn3yE");
 
@@ -63,6 +65,27 @@ pub mod gameplay {
 
         Ok(())
     }
+
+    pub fn create_character_secure(ctx: Context<CreateCharacterSecure>) -> Result<()> {
+        let character = &mut ctx.accounts.character;
+        character.metadata = ctx.accounts.metadata_account.key();
+        character.auth = ctx.accounts.authority.key();
+        character.wins = 0;
+
+        let context = CpiContext::new(
+            ctx.accounts.metadata_program.to_account_info(),
+            CreateMetadata {
+                character: ctx.accounts.character.to_account_info(),
+                metadata: ctx.accounts.metadata_account.to_owned(),
+                authority: ctx.accounts.authority.to_account_info(),
+                system_program: ctx.accounts.system_program.to_account_info(),
+            },
+        );
+
+        create_metadata(context)?;
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -100,6 +123,30 @@ pub struct BattleInsecure<'info> {
     pub player_two_metadata: UncheckedAccount<'info>,
     /// CHECK: intentionally unchecked
     pub metadata_program: UncheckedAccount<'info>,
+}
+
+#[derive(Accounts)]
+pub struct CreateCharacterSecure<'info> {
+    #[account(mut)]
+    pub authority: Signer<'info>,
+    #[account(
+        init,
+        payer = authority,
+        space = 8 + 32 + 32 + 64,
+        seeds = [authority.key().as_ref()],
+        bump
+    )]
+    pub character: Account<'info, Character>,
+    #[account(
+        mut,
+        seeds = [character.key().as_ref()],
+        seeds::program = metadata_program.key(),
+        bump,
+    )]
+    /// CHECK: manual checks
+    pub metadata_account: AccountInfo<'info>,
+    pub metadata_program: Program<'info, CharacterMetadata>,
+    pub system_program: Program<'info, System>,
 }
 
 #[account]

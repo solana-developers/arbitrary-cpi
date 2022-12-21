@@ -55,6 +55,7 @@ describe("arbitrary-cpi", async () => {
       .signers([attacker])
       .rpc()
 
+    // Fetch both player's metadata accounts
     const [playerOneMetadataKey] = getMetadataKey(
       playerOne.publicKey,
       gameplayProgram.programId,
@@ -75,10 +76,28 @@ describe("arbitrary-cpi", async () => {
       attackerMetadataKey
     )
 
+    // The regular player should have health and power between 0 and 20
     expect(playerOneMetadata.health).to.be.lessThan(20)
     expect(playerOneMetadata.power).to.be.lessThan(20)
 
+    // The attacker will have health and power of 255
     expect(attackerMetadata.health).to.equal(255)
     expect(attackerMetadata.power).to.equal(255)
+  })
+
+  it("Secure character creation doesn't allow fake program", async () => {
+    try {
+      await gameplayProgram.methods
+        .createCharacterSecure()
+        .accounts({
+          metadataProgram: fakeMetadataProgram.programId,
+          authority: attacker.publicKey,
+        })
+        .signers([attacker])
+        .rpc()
+    } catch (error) {
+      expect(error)
+      console.log(error)
+    }
   })
 })
