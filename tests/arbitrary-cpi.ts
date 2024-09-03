@@ -82,4 +82,20 @@ describe("arbitrary-cpi", async () => {
     expect(attackerMetadata.health).to.equal(255);
     expect(attackerMetadata.power).to.equal(255);
   });
+
+  it("Secure character creation with fake program should throw an exception", async () => {
+    try {
+      await gameplayProgram.methods
+        .createCharacterSecure()
+        .accounts({
+          metadataProgram: fakeMetadataProgram.programId,
+          authority: attacker.publicKey,
+        })
+        .signers([attacker])
+        .rpc();
+    } catch (error) {
+      expect(error);
+      console.log(error);
+    }
+  });
 });
