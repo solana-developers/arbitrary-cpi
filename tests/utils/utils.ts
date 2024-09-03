@@ -1,18 +1,29 @@
-import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey"
-import { LAMPORTS_PER_SOL, Connection, PublicKey } from "@solana/web3.js"
+import { LAMPORTS_PER_SOL, Connection, PublicKey } from "@solana/web3.js";
 
 export async function safeAirdrop(address: PublicKey, connection: Connection) {
-  const acctInfo = await connection.getAccountInfo(address, "confirmed")
+  const acctInfo = await connection.getAccountInfo(address, "confirmed");
 
   if (acctInfo == null || acctInfo.lamports < LAMPORTS_PER_SOL) {
-    let signature = await connection.requestAirdrop(address, LAMPORTS_PER_SOL)
+    const airdropSignature = await connection.requestAirdrop(
+      address,
+      LAMPORTS_PER_SOL
+    );
 
-    await connection.confirmTransaction(signature)
+    const latestBlockHash = await connection.getLatestBlockhash();
+
+    await connection.confirmTransaction(
+      {
+        blockhash: latestBlockHash.blockhash,
+        lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
+        signature: airdropSignature,
+      },
+      "confirmed"
+    );
   }
 }
 
 export function getCharacterKey(auth: PublicKey, program: PublicKey) {
-  return findProgramAddressSync([auth.toBuffer()], program)
+  return PublicKey.findProgramAddressSync([auth.toBuffer()], program);
 }
 
 export function getMetadataKey(
@@ -20,7 +31,10 @@ export function getMetadataKey(
   gameplayProgram: PublicKey,
   metadataProgram: PublicKey
 ) {
-  const [characterKey] = getCharacterKey(auth, gameplayProgram)
+  const [characterKey] = getCharacterKey(auth, gameplayProgram);
 
-  return findProgramAddressSync([characterKey.toBuffer()], metadataProgram)
+  return PublicKey.findProgramAddressSync(
+    [characterKey.toBuffer()],
+    metadataProgram
+  );
 }

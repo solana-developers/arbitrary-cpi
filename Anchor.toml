@@ -1,17 +1,20 @@
+[toolchain]
+
 [features]
-seeds = true
+resolution = true
 skip-lint = false
+
 [programs.localnet]
-gameplay = "AbFFYMjsZ2iaXn6wU9C8BDDJS8yP3bE9tEndB56cn3yE"
-character_metadata = "D4hPnYEsAx4u3EQMrKEXsY3MkfLndXbBKTEYTwwm25TE"
-fake_metadata = "FKBWhshzcQa29cCyaXc1vfkZ5U985gD5YsqfCzJYUBr"
+character_metadata = "7bWYat9i4VqWooGSM2w3h5Chr5qzEwkSVxFQa1ciALtk"
+fake_metadata = "C9Erfs6bCf4CP6HZgFGG3dCds4RvWNtQ1vZs4osnxFBN"
+gameplay = "GiQZ6dD1r1dcNrJY669GXkpZpC9qTeMfTf5HwFMcTFi1"
 
 [registry]
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "localnet"
+cluster = "Localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/*.ts"
