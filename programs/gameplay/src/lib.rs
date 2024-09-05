@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
-use borsh::{BorshDeserialize, BorshSerialize};
 use character_metadata::cpi::accounts::CreateMetadata;
 
-declare_id!("AbFFYMjsZ2iaXn6wU9C8BDDJS8yP3bE9tEndB56cn3yE");
+declare_id!("GiQZ6dD1r1dcNrJY669GXkpZpC9qTeMfTf5HwFMcTFi1");
+
+const DISCRIMINATOR_SIZE: usize = 8;
 
 #[program]
 pub mod gameplay {
@@ -72,7 +73,7 @@ pub struct CreateCharacterInsecure<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 32 + 32 + 64,
+        space = DISCRIMINATOR_SIZE + Character::INIT_SPACE,
         seeds = [authority.key().as_ref()],
         bump
     )]
@@ -85,7 +86,7 @@ pub struct CreateCharacterInsecure<'info> {
     )]
     /// CHECK: manual checks
     pub metadata_account: AccountInfo<'info>,
-    ///CHECK: intentionally don't check the metadata program
+    /// CHECK: intentionally don't check the metadata program
     pub metadata_program: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
 }
@@ -103,6 +104,7 @@ pub struct BattleInsecure<'info> {
 }
 
 #[account]
+#[derive(InitSpace)]
 pub struct Character {
     pub auth: Pubkey,
     pub metadata: Pubkey,
