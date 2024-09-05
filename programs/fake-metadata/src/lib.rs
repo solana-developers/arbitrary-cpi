@@ -1,6 +1,8 @@
 use anchor_lang::prelude::*;
 
-declare_id!("FKBWhshzcQa29cCyaXc1vfkZ5U985gD5YsqfCzJYUBr");
+declare_id!("C9Erfs6bCf4CP6HZgFGG3dCds4RvWNtQ1vZs4osnxFBN");
+
+const DISCRIMINATOR_SIZE: usize = 8;
 
 #[program]
 pub mod fake_metadata {
@@ -23,7 +25,7 @@ pub struct CreateMetadata<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 32 + 8 + 8,
+        space = DISCRIMINATOR_SIZE + Metadata::INIT_SPACE,
         seeds = [character.key().as_ref()],
         bump
     )]
@@ -34,6 +36,7 @@ pub struct CreateMetadata<'info> {
 }
 
 #[account]
+#[derive(InitSpace)]
 pub struct Metadata {
     pub character: Pubkey,
     pub health: u8,

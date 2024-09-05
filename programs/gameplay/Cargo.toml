@@ -1,12 +1,12 @@
 [package]
-name = "gameplay"
+name = "fake-metadata"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "gameplay"
+name = "fake_metadata"
 
 [features]
 no-entrypoint = []
@@ -14,7 +14,7 @@ no-idl = []
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
 default = []
+idl-build = ["anchor-lang/idl-build"]
 
 [dependencies]
-anchor-lang = "0.25.0"
-character-metadata = { path = "../character-metadata", features = ["cpi"] }
+anchor-lang = "0.30.1"

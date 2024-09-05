@@ -1,10 +1,11 @@
 use anchor_lang::prelude::*;
-use borsh::{BorshDeserialize, BorshSerialize};
 use character_metadata::{
     cpi::accounts::CreateMetadata, cpi::create_metadata, program::CharacterMetadata,
 };
 
-declare_id!("AbFFYMjsZ2iaXn6wU9C8BDDJS8yP3bE9tEndB56cn3yE");
+declare_id!("GiQZ6dD1r1dcNrJY669GXkpZpC9qTeMfTf5HwFMcTFi1");
+
+const DISCRIMINATOR_SIZE: usize = 8;
 
 #[program]
 pub mod gameplay {
@@ -47,25 +48,6 @@ pub mod gameplay {
         Ok(())
     }
 
-    pub fn battle_insecure(ctx: Context<BattleInsecure>) -> Result<()> {
-        let player_one_meta_data = &ctx.accounts.player_one_metadata.try_borrow_data()?;
-        let player_one_meta = Metadata::try_from_slice(player_one_meta_data)?;
-
-        let player_two_meta_data = &ctx.accounts.player_two_metadata.try_borrow_data()?;
-        let player_two_meta = Metadata::try_from_slice(player_two_meta_data)?;
-
-        let player_one_health = player_one_meta.health - player_two_meta.power;
-        let player_two_health = player_two_meta.health - player_one_meta.power;
-
-        if player_one_health > player_two_health {
-            ctx.accounts.player_one.wins += 1;
-        } else {
-            ctx.accounts.player_two.wins += 1;
-        }
-
-        Ok(())
-    }
-
     pub fn create_character_secure(ctx: Context<CreateCharacterSecure>) -> Result<()> {
         let character = &mut ctx.accounts.character;
         character.metadata = ctx.accounts.metadata_account.key();
@@ -86,6 +68,25 @@ pub mod gameplay {
 
         Ok(())
     }
+
+    pub fn battle_insecure(ctx: Context<BattleInsecure>) -> Result<()> {
+        let player_one_meta_data = &ctx.accounts.player_one_metadata.try_borrow_data()?;
+        let player_one_meta = Metadata::try_from_slice(player_one_meta_data)?;
+
+        let player_two_meta_data = &ctx.accounts.player_two_metadata.try_borrow_data()?;
+        let player_two_meta = Metadata::try_from_slice(player_two_meta_data)?;
+
+        let player_one_health = player_one_meta.health - player_two_meta.power;
+        let player_two_health = player_two_meta.health - player_one_meta.power;
+
+        if player_one_health > player_two_health {
+            ctx.accounts.player_one.wins += 1;
+        } else {
+            ctx.accounts.player_two.wins += 1;
+        }
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -95,7 +96,7 @@ pub struct CreateCharacterInsecure<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 32 + 32 + 64,
+        space = DISCRIMINATOR_SIZE + Character::INIT_SPACE,
         seeds = [authority.key().as_ref()],
         bump
     )]
@@ -108,21 +109,9 @@ pub struct CreateCharacterInsecure<'info> {
     )]
     /// CHECK: manual checks
     pub metadata_account: AccountInfo<'info>,
-    ///CHECK: intentionally don't check the metadata program
+    /// CHECK: intentionally don't check the metadata program
     pub metadata_program: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
-}
-
-#[derive(Accounts)]
-pub struct BattleInsecure<'info> {
-    pub player_one: Account<'info, Character>,
-    pub player_two: Account<'info, Character>,
-    /// CHECK: manual checks
-    pub player_one_metadata: UncheckedAccount<'info>,
-    /// CHECK: manual checks
-    pub player_two_metadata: UncheckedAccount<'info>,
-    /// CHECK: intentionally unchecked
-    pub metadata_program: UncheckedAccount<'info>,
 }
 
 #[derive(Accounts)]
@@ -132,7 +121,7 @@ pub struct CreateCharacterSecure<'info> {
     #[account(
         init,
         payer = authority,
-        space = 8 + 32 + 32 + 64,
+        space = DISCRIMINATOR_SIZE + Character::INIT_SPACE,
         seeds = [authority.key().as_ref()],
         bump
     )]
@@ -149,7 +138,20 @@ pub struct CreateCharacterSecure<'info> {
     pub system_program: Program<'info, System>,
 }
 
+#[derive(Accounts)]
+pub struct BattleInsecure<'info> {
+    pub player_one: Account<'info, Character>,
+    pub player_two: Account<'info, Character>,
+    /// CHECK: manual checks
+    pub player_one_metadata: UncheckedAccount<'info>,
+    /// CHECK: manual checks
+    pub player_two_metadata: UncheckedAccount<'info>,
+    /// CHECK: intentionally unchecked
+    pub metadata_program: UncheckedAccount<'info>,
+}
+
 #[account]
+#[derive(InitSpace)]
 pub struct Character {
     pub auth: Pubkey,
     pub metadata: Pubkey,
