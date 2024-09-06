@@ -81,7 +81,7 @@ pub struct CreateCharacterInsecure<'info> {
         seeds::program = metadata_program.key(),
         bump,
     )]
-     /// CHECK: This account will not be checked by anchor
+    /// CHECK: This account will not be checked by anchor
     pub metadata_account: AccountInfo<'info>,
     /// CHECK: This account will not be checked by anchor
     pub metadata_program: UncheckedAccount<'info>,
