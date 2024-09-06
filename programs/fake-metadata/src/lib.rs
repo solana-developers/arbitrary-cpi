@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("C9Erfs6bCf4CP6HZgFGG3dCds4RvWNtQ1vZs4osnxFBN");
+declare_id!("HQqG7PxftCD5BB9WUWcYksrjDLUwCmbV8Smh1W8CEgQm");
 
 const DISCRIMINATOR_SIZE: usize = 8;
 
@@ -14,14 +14,15 @@ pub mod fake_metadata {
         metadata.health = u8::MAX;
         metadata.power = u8::MAX;
 
+        msg!("Fake metadata created with max stats");
         Ok(())
     }
 }
 
 #[derive(Accounts)]
 pub struct CreateMetadata<'info> {
-    /// CHECK: manual checks
-    pub character: AccountInfo<'info>,
+    /// CHECK: This account will not be checked by anchor
+    pub character: UncheckedAccount<'info>,
     #[account(
         init,
         payer = authority,
