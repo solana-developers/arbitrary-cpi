@@ -1,8 +1,9 @@
 use anchor_lang::prelude::*;
 
-declare_id!("7bWYat9i4VqWooGSM2w3h5Chr5qzEwkSVxFQa1ciALtk");
+declare_id!("4FgVd2dgsFnXbSHz8fj9twNbfx8KWcBJkHa6APicU6KS");
 
-const DISCRIMINATOR_SIZE: usize = 8;
+pub const DISCRIMINATOR_SIZE: usize = 8;
+pub const MAX_STAT_VALUE: u8 = 20;
 
 #[program]
 pub mod character_metadata {
@@ -10,20 +11,21 @@ pub mod character_metadata {
 
     pub fn create_metadata(ctx: Context<CreateMetadata>) -> Result<()> {
         let metadata = &mut ctx.accounts.metadata;
-        let random_health = pseudo_random(Clock::get()?, 20);
-        let random_power = pseudo_random(Clock::get()?, 20);
+        let clock = Clock::get()?;
 
-        metadata.health = random_health;
-        metadata.power = random_power;
+        metadata.character = ctx.accounts.character.key();
+        metadata.health = pseudo_random(&clock, MAX_STAT_VALUE);
+        metadata.power = pseudo_random(&clock, MAX_STAT_VALUE);
 
+        msg!("Metadata created: Health: {}, Power: {}", metadata.health, metadata.power);
         Ok(())
     }
 }
 
 #[derive(Accounts)]
 pub struct CreateMetadata<'info> {
-    /// CHECK: manual checks
-    pub character: AccountInfo<'info>,
+    /// CHECK: This account will not be checked by anchor
+    pub character: UncheckedAccount<'info>,
     #[account(
         init,
         payer = authority,
@@ -38,16 +40,17 @@ pub struct CreateMetadata<'info> {
 }
 
 #[account]
-#[derive(InitSpace)]
+#[derive(Default, InitSpace)]
 pub struct Metadata {
     pub character: Pubkey,
     pub health: u8,
     pub power: u8,
 }
 
-fn pseudo_random(clock: Clock, limit: u8) -> u8 {
-    let big_limit = limit as i64;
-    let random = clock.unix_timestamp.checked_rem(big_limit).unwrap();
+fn pseudo_random(clock: &Clock, limit: u8) -> u8 {
+    let random = clock.unix_timestamp
+        .checked_rem(limit as i64)
+        .unwrap_or(0);
 
     random as u8
 }
